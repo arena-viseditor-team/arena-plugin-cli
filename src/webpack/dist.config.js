@@ -18,7 +18,7 @@ module.exports = function (config, root, prod) {
       rules: [
         {
           test: /\.js$/,
-          exclude: /node_modules/,
+          // exclude: /node_modules/,
           use: {
             loader: 'babel-loader',
             options: {
@@ -35,7 +35,7 @@ module.exports = function (config, root, prod) {
         },
         {
           test: /\.arena\.jsx$/,
-          exclude: /node_modules/,
+          // exclude: /node_modules/,
           use: {
             loader: 'babel-loader',
             options: {
@@ -98,11 +98,11 @@ module.exports = function (config, root, prod) {
     plugins: [
       // new webpack.NormalModuleReplacementPlugin(/arena-types/, './types.js'),
       // new webpack.IgnorePlugin('arena-types'),
-      // new webpack.ProvidePlugin({
-      //   document: [external, 'document'],
-      //   Vue: [external, 'Vue'],
-      //   // 'arena-types': [external, 'types'],
-      // }),
+      new webpack.ProvidePlugin({
+        document: [external, 'document'],
+        Vue: [external, 'Vue'],
+        // 'arena-types': [external, 'types'],
+      }),
       new MiniCssExtractPlugin({
         filename: '[name]_style.css',
       }),

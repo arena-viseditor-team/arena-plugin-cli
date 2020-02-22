@@ -51,7 +51,9 @@ class BuildCommand extends Command {
     }
 
     if (content.config.version) {
-      content.config.version = semver.inc(content.config.version, flags.bump)
+      if (flags.bump) {
+        content.config.version = semver.inc(content.config.version, flags.bump)
+      }
       const pluginJson = path.resolve(process.cwd(), 'plugin.json')
       const jsonOnDisk = fs.readFileSync(pluginJson, {encoding: 'utf8'})
       const jsonContent = JSON.parse(jsonOnDisk)
@@ -102,7 +104,7 @@ Build production Arena plugin
 BuildCommand.flags = {
   bump: flags.string({
     char: 'b',
-    default: 'patch',
+    // default: 'patch',
     description: 'Auto versioning',
     options: ['patch', 'minor', 'major'],
   }),
