@@ -8,7 +8,7 @@ module.exports = {
   term,
   headerDev: () => {
     term.clear()
-    term.defaultColor('📦\t').bgWhite(`${global._pid}/${global._name}\n`)
+    term.bgMagenta(`当前插件：${global._pid}/${global._name}\n`)
   },
   pbar: () => pbar,
   newPbar: () => {

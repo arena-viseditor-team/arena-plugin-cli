@@ -1,8 +1,10 @@
 const {Command} = require('@oclif/command')
 const path = require('path')
 const writer = require('arena-file/writer')
+const os = require('os')
+const fs = require('fs')
+const request = require('request-promise-native');
 const webpackCompiler = require('../webpack/compiler')
-const ipc = require('../ipc')
 const t = require('../ui')
 
 class DevCommand extends Command {
@@ -13,10 +15,10 @@ class DevCommand extends Command {
       return
     }
 
+    this.devPortFile = path.resolve(os.tmpdir(), 'arena_dev.sig')
+
     t.newPbar()
     t.headerDev()
-
-    await ipc.connect()
 
     webpackCompiler.compile(
       this.compileSuccess.bind(this),
@@ -25,6 +27,8 @@ class DevCommand extends Command {
       this.compileProgress.bind(this),
       this.compileStart.bind(this),
       this.config.root,
+      false,
+      webpackCompiler.pluginJson.version
     )
   }
 
@@ -39,9 +43,9 @@ class DevCommand extends Command {
 
   async compileSuccess(content, fileBuffer) {
     t.headerDev()
-    t.term.defaultColor('✌️\t').bgBrightGreen('编译成功\n')
+    t.term.bgCyan(`[${new Date().toLocaleString()}]编译成功\n`)
 
-    const savePath = path.resolve(process.cwd(), `dev-image.arenap`)
+    const savePath = path.resolve(os.tmpdir(), `dev-${content.config.pluginId}.arenap`)
     const w = new writer(savePath)
     w.setContentVersion('0.0.0')
     w.addContent(Buffer.from(JSON.stringify(content), 'utf-8'), 'content.json')
@@ -59,20 +63,26 @@ class DevCommand extends Command {
 
     await w.write()
 
-    const err = ipc.sendData(JSON.stringify({
-      package: content.config.pluginId,
-      image: savePath,
-    }))
-    if (err) this.compileError(err)
-    else t.term.defaultColor('🚗\t').bgBrightGreen('已更新到 Arena')
+    if (!fs.existsSync(savePath)) {
+      return this.compileError('未启动 Arena')
+    }
+
+    const devPort = fs.readFileSync(this.devPortFile, {encoding: 'utf8'})
+
+    request(`http://localhost:${devPort}/?client=cli&file=${savePath}`).then((res) => {
+      t.term.bgGreen(`[${new Date().toLocaleString()}]成功！已更新到 Arena ${res}`)
+    })
+    .catch(error => {
+      this.compileError(`更新失败: ${error.message}`)
+    })
   }
 
   compileWarning(content) {
-    t.term.brightYellow(`Warning: ${content}\n`)
+    t.term.bgYellow(`[${new Date().toLocaleString()}]警告！${content}\n`)
   }
 
   compileError(content) {
-    t.term.defaultColor('❗️\t').bgBrightRed(content + '\t')
+    t.term.bgRed(`[${new Date().toLocaleString()}]错误！${content}\n`)
   }
 }
 

@@ -74,7 +74,7 @@ module.exports = function (config, root, prod) {
               options: {
                 ident: 'postcss',
                 plugins: [
-                  require('postcss-prefix-selector')({prefix: `[arena-scope="${config.id}"]`}),
+                  require('postcss-prefix-selector')({prefix: `[arena-scope="${config.id}"][arena-scope-version="${config.version}"]`}),
                 ],
               },
             },
@@ -86,7 +86,7 @@ module.exports = function (config, root, prod) {
     output: {
       filename: `[name]-${config.id}.compiled`,
       path: config.dist,
-      library: config.id,
+      library: `${config.id}-${config.version}`,
       libraryTarget: 'window',
     },
     resolveLoader: {

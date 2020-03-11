@@ -120,6 +120,7 @@ class ArenaPluginCompiler {
     beforeCallback,
     root,
     prod = false,
+    targetVersion,
   ) {
     this.styleEntries = this.getStyleEntries()
 
@@ -130,6 +131,7 @@ class ArenaPluginCompiler {
           id: this.projectId,
           dist: '/',
           extendedEntries: {...this.styleEntries},
+          version: targetVersion,
         },
         root,
         prod,

@@ -17,6 +17,16 @@ class BuildCommand extends Command {
     t.newPbar()
     t.headerDev()
 
+    const {flags} = this.parse(BuildCommand)
+
+    const pluginJsonPath = path.resolve(process.cwd(), 'plugin.json')
+    if (!fs.existsSync(pluginJsonPath)) {
+      throw new Error('插件配置不存在 (plugin.json)')
+    }
+
+    const pluginJson = JSON.parse(fs.readFileSync(pluginJsonPath, {encoding: 'utf8'}));
+    const version = flags.bump ? semver.inc(pluginJson.version, flags.bump) : pluginJson.version;
+
     webpackCompiler.compile(
       this.compileSuccess.bind(this),
       this.compileWarning.bind(this),
@@ -25,6 +35,7 @@ class BuildCommand extends Command {
       this.compileStart.bind(this),
       this.config.root,
       true,
+      version,
     )
   }
 
