@@ -85,6 +85,13 @@ class BuildCommand extends Command {
       const p = content.config.plugins[index]
       p.icon && w.addFile(path.resolve(process.cwd(), p.icon), p.icon, false)
       p.thumb && w.addFile(path.resolve(process.cwd(), p.thumb), p.thumb, false)
+
+      if (p.components && p.components.length) {
+        p.components.forEach(sub => {
+          sub.icon && w.addFile(path.resolve(process.cwd(), sub.icon), sub.icon, false)
+          sub.thumb && w.addFile(path.resolve(process.cwd(), sub.thumb), sub.thumb, false)
+        })
+      }
     }
     content.config.thumb && w.addFile(path.resolve(process.cwd(), content.config.thumb), content.config.thumb, false)
 
